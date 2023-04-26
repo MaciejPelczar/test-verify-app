@@ -128,6 +128,7 @@ def final_img_join(img_final, img_inverse_warp):
 
 class CheckImage:
     def __init__(self, image_path, correct_answers):
+        self.indexes = None
         self.img = None
         self.image_path = image_path
         self.correct_answers = correct_answers
@@ -160,13 +161,13 @@ class CheckImage:
         self.img = final_img_join(self.img, student_id.img_colored_marks)
         self.img = final_img_join(self.img, grade_on_blank)
 
-
-
+        self.indexes = student_id.indexes
 
 
 class CheckField:
     def __init__(self, img, contour, image_width, image_height, field_number, questions, choices, correct_answers,
                  rotated_field):
+        self.indexes = None
         self.rotated_field = rotated_field
         self.correct_answers = correct_answers
         self.choices = choices
@@ -185,6 +186,7 @@ class CheckField:
             splited_boxes = binary_and_split(field_wrap, self.questions, self.choices)
             pixels_value = check_line(splited_boxes, self.questions, self.choices, self.rotated_field)
             marked_indexes = find_idexes_of_marked_boxes(self.questions, self.choices, pixels_value, self.rotated_field)
+            self.indexes = marked_indexes
             if self.field_number == 0:
                 verified_answers, self.percent_grade = check_if_correct(marked_indexes, self.correct_answers,
                                                                         self.questions)

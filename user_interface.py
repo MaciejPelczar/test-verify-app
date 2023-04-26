@@ -4,6 +4,7 @@ from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 from cv2 import cv2
 
+import database
 import main
 
 
@@ -21,6 +22,8 @@ class MainFrame(ttk.Frame):
     def __init__(self, container, **kwargs):
         super().__init__(container, **kwargs)
 
+        self.answer_indexes = []
+        self.correct_answers = []
         self.e0 = tk.StringVar()
         self.e1 = tk.StringVar()
         self.e2 = tk.StringVar()
@@ -35,13 +38,14 @@ class MainFrame(ttk.Frame):
         self.e11 = tk.StringVar()
 
         self.student_id = tk.StringVar()
+        self.test_id = tk.StringVar()
         self.percentage = tk.StringVar()
-        self.filename = tk.StringVar(value="Python-Symbol.png")
+        self.filename = tk.StringVar(value="pyton.png")
 
         button_load = ttk.Button(self, text="LOAD IMAGE", command=self.load_file)
         button_check = ttk.Button(self, text="CHECK IMAGE", command=self.check_image)
-        button_save = ttk.Button(self, text="SAVE GRADE")
-        button_close = ttk.Button(self, text="CLOSE")
+        button_save = ttk.Button(self, text="SAVE GRADE", command=self.save_grade)
+        button_close = ttk.Button(self, text="CLOSE", command=self.quit)
 
         button_load.grid(column=0, row=0, columnspan=2)
         button_check.grid(column=2, row=0)
@@ -77,7 +81,7 @@ class MainFrame(ttk.Frame):
         button_load = ttk.Button(self, text="LOAD ANSWERS", command=self.load_correct_answers)
         button_load.grid(column=0, row=8, columnspan=2)
 
-        answers_id = ttk.Entry(self, width=10)
+        answers_id = ttk.Entry(self, width=10, textvariable=self.test_id)
         answers_id.grid(column=0, row=9, columnspan=2)
 
         ttk.Separator(
@@ -167,9 +171,17 @@ class MainFrame(ttk.Frame):
         image_label.grid(column=2, row=2, columnspan=3, rowspan=21)
 
     def check_image(self, *args):
-        percentage, student_id, img= main.check(self.filename.get())
+        percentage, student_id, self.answer_indexes, img= main.check(self.filename.get(), self.correct_answers)
+
         self.percentage.set(round(percentage, 2))
-        self.student_id.set(student_id)
+        student_id_str = ""
+        for i in range(5):
+            student_id_str += str(student_id[i])
+        print(student_id_str)
+        # student_id = student_id.split(", ")
+        # student_id = "".join(student_id)
+
+        self.student_id.set(student_id_str)
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(img)
@@ -179,21 +191,46 @@ class MainFrame(ttk.Frame):
         image_label.grid(column=2, row=2, columnspan=3, rowspan=21)
 
     def load_correct_answers(self):
+
+        self.correct_answers = []
+
+        corr_ans = database.get_correct_answers(self.test_id.get())
+        print(corr_ans)
+
+        corr_ans = corr_ans.split(" ")
+        print(corr_ans)
+
+        dict_reverse = {"A": 0, "B": 1, "C": 2, "D": 3}
+
         cor_ans = []
         dic = {0: "A", 1: "B", 2: "C", 3: "D"}
-        correct_answers = [1, 2, 0, 0, 3, 2, 3, 1, 3, 0, 3, 1]
+        correct_answers = []
 
         for i in range(12):
-            cor_ans.append(dic[correct_answers[i]])
+            self.correct_answers.append(dict_reverse[corr_ans[i]])
+
+        print(self.correct_answers)
 
         labels = [self.e0, self.e1, self.e2, self.e3, self.e4, self.e5, self.e6, self.e7, self.e8, self.e9, self.e10,
                   self.e11]
 
         for i in range(12):
-            labels[i].set(cor_ans[i])
+            labels[i].set(corr_ans[i])
 
     def save_grade(self):
-        pass
+        answers = []
+
+        ans = tuple(self.answer_indexes)
+        print(ans)
+
+        dict_reverse = {0: "A", 1: "B", 2: "C", 3: "D"}
+        for i in range(12):
+            answers.append(dict_reverse[ans[i]])
+        # print(answers)
+        answers = " ".join(answers)
+        print(answers)
+        print(self.test_id.get())
+        database.save_to_database(self.student_id.get(), self.percentage.get(), answers, self.test_id.get())
 
 
 root = MainWindow()

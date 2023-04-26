@@ -128,7 +128,8 @@ def final_img_join(img_final, img_inverse_warp):
 
 class CheckImage:
     def __init__(self, image_path, correct_answers):
-        self.indexes = None
+        self.student_indexes = None
+        self.answer_indexes = None
         self.img = None
         self.image_path = image_path
         self.correct_answers = correct_answers
@@ -161,7 +162,8 @@ class CheckImage:
         self.img = final_img_join(self.img, student_id.img_colored_marks)
         self.img = final_img_join(self.img, grade_on_blank)
 
-        self.indexes = student_id.indexes
+        self.student_indexes = student_id.indexes
+        self.answer_indexes = answer.indexes
 
 
 class CheckField:

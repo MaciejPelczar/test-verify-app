@@ -2,10 +2,10 @@ from cv2 import cv2
 import check_image
 
 
-def check(image_path):
+def check(image_path, correct_answers):
     # image_path = "odp-id-w2.jpg"
 
-    correct_answers = [1, 2, 0, 0, 3, 2, 3, 1, 3, 0, 3, 1]
+    # correct_answers = [1, 2, 0, 0, 3, 2, 3, 1, 3, 0, 3, 1]
 
     zdj = check_image.CheckImage(image_path, correct_answers)
     zdj.check_image()
@@ -14,4 +14,4 @@ def check(image_path):
     # cv2.imshow("Finalne polaczenie ", zdj.img)
     # cv2.waitKey(0)
 
-    return zdj.percentage, zdj.indexes, zdj.img
+    return zdj.percentage, zdj.student_indexes, zdj.answer_indexes, zdj.img

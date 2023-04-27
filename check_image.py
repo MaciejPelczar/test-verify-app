@@ -1,6 +1,7 @@
 from cv2 import cv2
 import numpy as np
 
+import database
 import functions
 
 
@@ -24,14 +25,14 @@ def find_contours(img2):
 def find_three_biggest_contours(contours):
     cont = []
     rect_contours = functions.find_rect_contour(contours)
-    for i in range(3):
+    for i in range(4):
         cont.append(functions.get_corner_point(rect_contours[i]))
     return cont
 
 
 def reorder_corners(contours):
     cont = []
-    for i in range(3):
+    for i in range(4):
         cont.append(functions.reorder_cores(contours[i]))
     return cont
 
@@ -57,7 +58,7 @@ def check_line(boxes, questions, choices, reverse):
     pixel_value = np.zeros((questions, choices))
     count_for_col = 0
     count_for_rows = 0
-    # liczymy piksele( im wiecej białych tym wiekszy wynik)
+
     for i in boxes:
         total_pixels = cv2.countNonZero(i)
         pixel_value[count_for_rows][count_for_col] = total_pixels
@@ -67,7 +68,7 @@ def check_line(boxes, questions, choices, reverse):
             count_for_col = 0
     if reverse:
         pixel_value = pixel_value.T
-    print(pixel_value)
+    # print(pixel_value)
     return pixel_value
 
 
@@ -79,10 +80,10 @@ def find_idexes_of_marked_boxes(questions, choices, pixel_value, rotate):
         n = questions
 
     for x in range(n):
-        row_px_values = pixel_value[x] # mamy każdy rząd osobno
+        row_px_values = pixel_value[x]
         index_max_px_value = np.where(row_px_values == np.amax(row_px_values))
         marked_indexes.append(index_max_px_value[0][0])
-    print(marked_indexes)
+    # print(marked_indexes)
     return marked_indexes
 
 
@@ -93,10 +94,9 @@ def check_if_correct(marked_indexes, correct_answers, questions):
             verified_answers.append(1)
         else:
             verified_answers.append(0)
-    print(verified_answers)
+    # print(verified_answers)
     percent_grade = (sum(verified_answers) / len(verified_answers)) * 100
     return verified_answers, percent_grade
-    # print("procent to %0.2f" % percent_grade)
 
 
 def save_colors_on_blank(img_answers_warp_colored, marked_indexes, verified_answers, correct_answers, questions,
@@ -117,7 +117,7 @@ def inverse_warp(img_marks_on_blank, contour, image_width, image_height, field_n
 
 def put_grade_on_blank(img_warp_colored, percent_grade):
     img_grade_on_blank = np.zeros_like(img_warp_colored)
-    cv2.putText(img_grade_on_blank, str(int(percent_grade)) + "%", (50, 100), cv2.FONT_HERSHEY_COMPLEX, 3, (0, 255, 255), 3)
+    cv2.putText(img_grade_on_blank, str(int(percent_grade)) + "%", (20, 100), cv2.FONT_HERSHEY_COMPLEX, 2, (0, 255, 255), 3)
     return img_grade_on_blank
 
 
@@ -127,12 +127,14 @@ def final_img_join(img_final, img_inverse_warp):
 
 
 class CheckImage:
-    def __init__(self, image_path, correct_answers):
+    def __init__(self, image_path):
         self.student_indexes = None
         self.answer_indexes = None
+        self.test_id_indexes = None
+        self.test_id_indexes_int = None
         self.img = None
         self.image_path = image_path
-        self.correct_answers = correct_answers
+        self.correct_answers = []
         self.image_width = 420
         self.image_height = 600
         self.percentage = None
@@ -144,26 +146,45 @@ class CheckImage:
         contours = find_contours(img)
         rect_contours = find_three_biggest_contours(contours)
         contours_reordered_corners = reorder_corners(rect_contours)
+
+        test_id = CheckField(img, contours_reordered_corners, self.image_width, self.image_height, 2, 10, 5, None, True)
+        test_id.check_field()
+
+        index = []
+        for i in test_id.indexes:
+            index.append(str(i))
+        index = int("".join(index))
+
+        corr_ans = database.get_correct_answers(index)
+        corr_ans = corr_ans.split(" ")
+        dict_answer = {"A": 0, "B": 1, "C": 2, "D": 3}
+
+        for i in range(12):
+            self.correct_answers.append(dict_answer[corr_ans[i]])
+
         answer = CheckField(img, contours_reordered_corners, self.image_width, self.image_height, 0, 12, 4,
                             self.correct_answers, False)
-        student_id = CheckField(img, contours_reordered_corners, self.image_width, self.image_height, 1, 10, 5, None, True)
-        # grade = CheckField(img, contours_reordered_corners, 300, 150, 2, 0, 0, None)
+        student_id = CheckField(img, contours_reordered_corners, self.image_width, self.image_height, 1, 10, 5,
+                                None, True)
         answer.check_field()
         student_id.check_field()
-        grade_wrap = warp_field(img, contours_reordered_corners, 300, 150, 2)
 
+        grade_wrap = warp_field(img, contours_reordered_corners, 200, 150, 3)
         grade_on_blank_warp = put_grade_on_blank(grade_wrap, answer.percent_grade)
 
         self.percentage = answer.percent_grade
-        grade_on_blank = inverse_warp(grade_on_blank_warp, contours_reordered_corners, 300,
-                                      150, 2)
+        grade_on_blank = inverse_warp(grade_on_blank_warp, contours_reordered_corners, 200,
+                                      150, 3)
 
         self.img = final_img_join(self.img, answer.img_colored_marks)
         self.img = final_img_join(self.img, student_id.img_colored_marks)
+        self.img = final_img_join(self.img, test_id.img_colored_marks)
         self.img = final_img_join(self.img, grade_on_blank)
 
         self.student_indexes = student_id.indexes
         self.answer_indexes = answer.indexes
+        self.test_id_indexes = test_id.indexes
+        self.test_id_indexes_int = index
 
 
 class CheckField:
@@ -184,7 +205,7 @@ class CheckField:
 
     def check_field(self):
         field_wrap = warp_field(self.img, self.contour, self.image_width, self.image_height, self.field_number)
-        if self.field_number < 2:
+        if self.field_number < 3:
             splited_boxes = binary_and_split(field_wrap, self.questions, self.choices)
             pixels_value = check_line(splited_boxes, self.questions, self.choices, self.rotated_field)
             marked_indexes = find_idexes_of_marked_boxes(self.questions, self.choices, pixels_value, self.rotated_field)
@@ -199,4 +220,3 @@ class CheckField:
                                                       self.rotated_field)
             self.img_colored_marks = inverse_warp(img_marks_on_blank, self.contour, self.image_width, self.image_height,
                                                   self.field_number)
-

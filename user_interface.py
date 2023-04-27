@@ -4,6 +4,7 @@ from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 from cv2 import cv2
 
+import check_image
 import database
 import main
 
@@ -23,7 +24,9 @@ class MainFrame(ttk.Frame):
         super().__init__(container, **kwargs)
 
         self.answer_indexes = []
+        self.user_answers = []
         self.correct_answers = []
+        self.test_id_indexes = tk.StringVar()
         self.e0 = tk.StringVar()
         self.e1 = tk.StringVar()
         self.e2 = tk.StringVar()
@@ -36,6 +39,19 @@ class MainFrame(ttk.Frame):
         self.e9 = tk.StringVar()
         self.e10 = tk.StringVar()
         self.e11 = tk.StringVar()
+
+        self.l0 = tk.StringVar()
+        self.l1 = tk.StringVar()
+        self.l2 = tk.StringVar()
+        self.l3 = tk.StringVar()
+        self.l4 = tk.StringVar()
+        self.l5 = tk.StringVar()
+        self.l6 = tk.StringVar()
+        self.l7 = tk.StringVar()
+        self.l8 = tk.StringVar()
+        self.l9 = tk.StringVar()
+        self.l10 = tk.StringVar()
+        self.l11 = tk.StringVar()
 
         self.student_id = tk.StringVar()
         self.test_id = tk.StringVar()
@@ -78,11 +94,11 @@ class MainFrame(ttk.Frame):
             cursor='plus'
         ).grid(row=7, column=0, ipadx=50, pady=10, columnspan=2)
 
-        button_load = ttk.Button(self, text="LOAD ANSWERS", command=self.load_correct_answers)
-        button_load.grid(column=0, row=8, columnspan=2)
+        button_load = ttk.Label(self, text="Test ID: ")
+        button_load.grid(column=0, row=8, sticky="E")
 
-        answers_id = ttk.Entry(self, width=10, textvariable=self.test_id)
-        answers_id.grid(column=0, row=9, columnspan=2)
+        answers_id = ttk.Label(self, textvariable=self.test_id_indexes)
+        answers_id.grid(column=1, row=8, sticky="W")
 
         ttk.Separator(
             master=self,
@@ -90,67 +106,72 @@ class MainFrame(ttk.Frame):
             style='blue.TSeparator',
             takefocus=1,
             cursor='plus'
-        ).grid(row=10, column=0, ipadx=50, pady=10, columnspan=2)
+        ).grid(row=9, column=0, ipadx=50, pady=10, columnspan=2)
 
-        label_1 = ttk.Label(self, text="1", width=2)
-        label_1.grid(column=0, row=11, sticky="E")
-        entry_1 = ttk.Label(self, width=7, textvariable=self.e0)
-        entry_1.grid(column=1, row=11, sticky="W")
+        label_key = ttk.Label(self, text="KEY")
+        label_key.grid(column=1, row=10)
+        label_user = ttk.Label(self, text="USER")
+        label_user.grid(column=0, row=10)
 
-        label_2 = ttk.Label(self, text="2", width=2)
-        label_2.grid(column=0, row=12, sticky="E")
-        entry_2 = ttk.Label(self, width=7, textvariable=self.e1)
-        entry_2.grid(column=1, row=12, sticky="W")
+        label_1 = ttk.Label(self, textvariable=self.l0)
+        label_1.grid(column=0, row=11)
+        entry_1 = ttk.Label(self, textvariable=self.e0)
+        entry_1.grid(column=1, row=11)
 
-        label_3 = ttk.Label(self, text="3", width=2)
-        label_3.grid(column=0, row=13, sticky="E")
-        entry_3 = ttk.Label(self, width=7, textvariable=self.e2)
-        entry_3.grid(column=1, row=13, sticky="W")
+        label_2 = ttk.Label(self, textvariable=self.l1)
+        label_2.grid(column=0, row=12)
+        entry_2 = ttk.Label(self, textvariable=self.e1)
+        entry_2.grid(column=1, row=12)
 
-        label_4 = ttk.Label(self, text="4", width=2)
-        label_4.grid(column=0, row=14, sticky="E")
-        entry_4 = ttk.Label(self, width=7, textvariable=self.e3)
-        entry_4.grid(column=1, row=14, sticky="W")
+        label_3 = ttk.Label(self, textvariable=self.l2)
+        label_3.grid(column=0, row=13)
+        entry_3 = ttk.Label(self, textvariable=self.e2)
+        entry_3.grid(column=1, row=13)
 
-        label_5 = ttk.Label(self, text="5", width=2)
-        label_5.grid(column=0, row=15, sticky="E")
-        entry_5 = ttk.Label(self, width=7, textvariable=self.e4)
-        entry_5.grid(column=1, row=15, sticky="W")
+        label_4 = ttk.Label(self, textvariable=self.l3)
+        label_4.grid(column=0, row=14)
+        entry_4 = ttk.Label(self, textvariable=self.e3)
+        entry_4.grid(column=1, row=14)
 
-        label_6 = ttk.Label(self, text="6", width=2)
-        label_6.grid(column=0, row=16, sticky="E")
-        entry_6 = ttk.Label(self, width=7, textvariable=self.e5)
-        entry_6.grid(column=1, row=16, sticky="W")
+        label_5 = ttk.Label(self, textvariable=self.l4)
+        label_5.grid(column=0, row=15)
+        entry_5 = ttk.Label(self, textvariable=self.e4)
+        entry_5.grid(column=1, row=15)
 
-        label_7 = ttk.Label(self, text="7", width=2)
-        label_7.grid(column=0, row=17, sticky="E")
-        entry_7 = ttk.Label(self, width=7, textvariable=self.e6)
-        entry_7.grid(column=1, row=17, sticky="W")
+        label_6 = ttk.Label(self, textvariable=self.l5)
+        label_6.grid(column=0, row=16)
+        entry_6 = ttk.Label(self, textvariable=self.e5)
+        entry_6.grid(column=1, row=16)
 
-        label_8 = ttk.Label(self, text="8", width=2)
-        label_8.grid(column=0, row=18, sticky="E")
-        entry_8 = ttk.Label(self, width=7, textvariable=self.e7)
-        entry_8.grid(column=1, row=18, sticky="W")
+        label_7 = ttk.Label(self, textvariable=self.l6)
+        label_7.grid(column=0, row=17)
+        entry_7 = ttk.Label(self, textvariable=self.e6)
+        entry_7.grid(column=1, row=17)
 
-        label_9 = ttk.Label(self, text="9", width=2)
-        label_9.grid(column=0, row=19, sticky="E")
-        entry_9 = ttk.Label(self, width=7, textvariable=self.e8)
-        entry_9.grid(column=1, row=19, sticky="W")
+        label_8 = ttk.Label(self, textvariable=self.l7)
+        label_8.grid(column=0, row=18)
+        entry_8 = ttk.Label(self, textvariable=self.e7)
+        entry_8.grid(column=1, row=18)
 
-        label_10 = ttk.Label(self, text="10", width=2)
-        label_10.grid(column=0, row=20, sticky="E")
-        entry_10 = ttk.Label(self, width=7, textvariable=self.e9)
-        entry_10.grid(column=1, row=20, sticky="W")
+        label_9 = ttk.Label(self, textvariable=self.l8)
+        label_9.grid(column=0, row=19)
+        entry_9 = ttk.Label(self, textvariable=self.e8)
+        entry_9.grid(column=1, row=19)
 
-        label_11 = ttk.Label(self, text="11", width=2)
-        label_11.grid(column=0, row=21, sticky="E")
-        entry_11 = ttk.Label(self, width=7, textvariable=self.e10)
-        entry_11.grid(column=1, row=21, sticky="W")
+        label_10 = ttk.Label(self,  textvariable=self.l9)
+        label_10.grid(column=0, row=20)
+        entry_10 = ttk.Label(self, textvariable=self.e9)
+        entry_10.grid(column=1, row=20)
 
-        label_12 = ttk.Label(self, text="12", width=2)
-        label_12.grid(column=0, row=22, sticky="E")
-        entry_12 = ttk.Label(self, width=7, textvariable=self.e11)
-        entry_12.grid(column=1, row=22, sticky="W")
+        label_11 = ttk.Label(self,  textvariable=self.l10)
+        label_11.grid(column=0, row=21)
+        entry_11 = ttk.Label(self, textvariable=self.e10)
+        entry_11.grid(column=1, row=21)
+
+        label_12 = ttk.Label(self,  textvariable=self.l11)
+        label_12.grid(column=0, row=22)
+        entry_12 = ttk.Label(self, textvariable=self.e11)
+        entry_12.grid(column=1, row=22)
 
         file_name_string = self.filename.get()
         image = Image.open(file_name_string).resize((420, 600))
@@ -171,15 +192,15 @@ class MainFrame(ttk.Frame):
         image_label.grid(column=2, row=2, columnspan=3, rowspan=21)
 
     def check_image(self, *args):
-        percentage, student_id, self.answer_indexes, img= main.check(self.filename.get(), self.correct_answers)
+        percentage, student_id, self.answer_indexes, test_id_indexes, img = check(self.filename.get())
+        self.test_id_indexes.set(test_id_indexes)
+        # print(self.test_id_indexes)
+        self.load_correct_answers()
 
         self.percentage.set(round(percentage, 2))
         student_id_str = ""
         for i in range(5):
             student_id_str += str(student_id[i])
-        print(student_id_str)
-        # student_id = student_id.split(", ")
-        # student_id = "".join(student_id)
 
         self.student_id.set(student_id_str)
 
@@ -192,49 +213,46 @@ class MainFrame(ttk.Frame):
 
     def load_correct_answers(self):
 
-        self.correct_answers = []
-
-        corr_ans = database.get_correct_answers(self.test_id.get())
-        print(corr_ans)
-
+        corr_ans = database.get_correct_answers(self.test_id_indexes.get())
         corr_ans = corr_ans.split(" ")
-        print(corr_ans)
 
+        dict_answer = {0: "A", 1: "B", 2: "C", 3: "D"}
         dict_reverse = {"A": 0, "B": 1, "C": 2, "D": 3}
 
-        cor_ans = []
-        dic = {0: "A", 1: "B", 2: "C", 3: "D"}
-        correct_answers = []
-
+        labels_cor = [self.e0, self.e1, self.e2, self.e3, self.e4, self.e5, self.e6, self.e7, self.e8, self.e9,
+                      self.e10, self.e11]
         for i in range(12):
             self.correct_answers.append(dict_reverse[corr_ans[i]])
+            labels_cor[i].set(corr_ans[i])
 
-        print(self.correct_answers)
-
-        labels = [self.e0, self.e1, self.e2, self.e3, self.e4, self.e5, self.e6, self.e7, self.e8, self.e9, self.e10,
-                  self.e11]
-
+        labels_usr = [self.l0, self.l1, self.l2, self.l3, self.l4, self.l5, self.l6, self.l7, self.l8, self.l9,
+                      self.l10, self.l11]
         for i in range(12):
-            labels[i].set(corr_ans[i])
+            self.user_answers.append(dict_answer[self.answer_indexes[i]])
+            labels_usr[i].set(self.user_answers[i])
 
     def save_grade(self):
         answers = []
-
         ans = tuple(self.answer_indexes)
-        print(ans)
-
         dict_reverse = {0: "A", 1: "B", 2: "C", 3: "D"}
         for i in range(12):
             answers.append(dict_reverse[ans[i]])
-        # print(answers)
         answers = " ".join(answers)
-        print(answers)
-        print(self.test_id.get())
-        database.save_to_database(self.student_id.get(), self.percentage.get(), answers, self.test_id.get())
+
+        database.save_to_database(self.student_id.get(), self.percentage.get(), answers, self.test_id_indexes.get())
 
 
-root = MainWindow()
+def check(image_path):
 
-root.columnconfigure(0, weight=1)
+    image = check_image.CheckImage(image_path)
+    image.check_image()
 
-root.mainloop()
+    return image.percentage, image.student_indexes, image.answer_indexes, image.test_id_indexes_int, image.img
+
+
+def start_user_interface():
+    root = MainWindow()
+
+    root.columnconfigure(0, weight=1)
+
+    root.mainloop()

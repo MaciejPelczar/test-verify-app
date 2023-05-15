@@ -11,12 +11,10 @@ def save_to_database(student_id, percent, answers, test_id):
 
     with con:
         con.execute(sq, data)
-    # print("Zapis do bazy!")
 
 
 def get_correct_answers(test_id):
     with con:
         corr_ans = con.execute(f"SELECT ANSWERS FROM CORRECT_ANSWERS WHERE TEST_ID = {test_id}")
         corr_ans = list(corr_ans)
-    # print("Odczyt z bazy!")
     return corr_ans[0][0]

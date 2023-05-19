@@ -57,16 +57,22 @@ class MainFrame(ttk.Frame):
         self.test_id = tk.StringVar()
         self.percentage = tk.StringVar()
         self.filename = tk.StringVar(value="pyton.png")
+        self.error_text = tk.StringVar()
+        self.error_text1 = tk.StringVar()
 
-        button_load = ttk.Button(self, text="LOAD IMAGE", command=self.load_file)
-        button_check = ttk.Button(self, text="CHECK IMAGE", command=self.check_image)
-        button_save = ttk.Button(self, text="SAVE GRADE", command=self.save_grade)
-        button_close = ttk.Button(self, text="CLOSE", command=self.quit)
+        self.button_load = ttk.Button(self, text="LOAD IMAGE", command=self.load_file)
+        self.button_check = ttk.Button(self, text="CHECK IMAGE", command=self.check_image)
+        self.button_edit = ttk.Button(self, text="EDIT", state='disable', command=self.edit_results)
+        self.button_save = ttk.Button(self, text="SAVE GRADE", command=self.save_grade)
+        self.button_close = ttk.Button(self, text="CLOSE", command=self.quit)
+        self.button_ok = ttk.Button(self, text="OK", state='disable', command=self.commit_edit_changes)
 
-        button_load.grid(column=0, row=0, columnspan=2)
-        button_check.grid(column=2, row=0)
-        button_save.grid(column=3, row=0)
-        button_close.grid(column=4, row=0)
+        self.button_load.grid(column=0, row=0, columnspan=2)
+        self.button_check.grid(column=2, row=0)
+        self.button_edit.grid(column=5, row=0)
+        self.button_save.grid(column=3, row=0)
+        self.button_close.grid(column=4, row=0)
+        self.button_ok.grid(column=5, row=2)
 
         ttk.Separator(
             master=self,
@@ -74,7 +80,7 @@ class MainFrame(ttk.Frame):
             style='blue.TSeparator',
             takefocus=1,
             cursor='plus'
-        ).grid(row=1, column=0, ipadx=250, pady=10, columnspan=5)
+        ).grid(row=1, column=0, ipadx=300, pady=10, columnspan=6)
 
         label_percent = ttk.Label(self, text="Percentage grade")
         label_percent.grid(column=0, row=3, columnspan=2)
@@ -83,8 +89,8 @@ class MainFrame(ttk.Frame):
 
         label_student_id = ttk.Label(self, text="Student ID")
         label_student_id.grid(column=0, row=5, columnspan=2)
-        label_student_id_display = ttk.Label(self, textvariable=self.student_id)
-        label_student_id_display.grid(column=0, row=6, columnspan=2)
+        self.label_student_id_display = ttk.Entry(self,state='disable', width=8, textvariable=self.student_id)
+        self.label_student_id_display.grid(column=0, row=6, columnspan=2)
 
         ttk.Separator(
             master=self,
@@ -113,65 +119,70 @@ class MainFrame(ttk.Frame):
         label_user = ttk.Label(self, text="USER")
         label_user.grid(column=0, row=10)
 
-        label_1 = ttk.Label(self, textvariable=self.l0)
-        label_1.grid(column=0, row=11)
+        self.label_1 = ttk.Entry(self, width=6, state='disable', textvariable=self.l0)
+        self.label_1.grid(column=0, row=11)
         entry_1 = ttk.Label(self, textvariable=self.e0)
         entry_1.grid(column=1, row=11)
 
-        label_2 = ttk.Label(self, textvariable=self.l1)
-        label_2.grid(column=0, row=12)
+        self.label_2 = ttk.Entry(self, width=6, state='disable', textvariable=self.l1)
+        self.label_2.grid(column=0, row=12)
         entry_2 = ttk.Label(self, textvariable=self.e1)
         entry_2.grid(column=1, row=12)
 
-        label_3 = ttk.Label(self, textvariable=self.l2)
-        label_3.grid(column=0, row=13)
+        self.label_3 = ttk.Entry(self, width=6, state='disable', textvariable=self.l2)
+        self.label_3.grid(column=0, row=13)
         entry_3 = ttk.Label(self, textvariable=self.e2)
         entry_3.grid(column=1, row=13)
 
-        label_4 = ttk.Label(self, textvariable=self.l3)
-        label_4.grid(column=0, row=14)
+        self.label_4 = ttk.Entry(self, width=6, state='disable', textvariable=self.l3)
+        self.label_4.grid(column=0, row=14)
         entry_4 = ttk.Label(self, textvariable=self.e3)
         entry_4.grid(column=1, row=14)
 
-        label_5 = ttk.Label(self, textvariable=self.l4)
-        label_5.grid(column=0, row=15)
+        self.label_5 = ttk.Entry(self, width=6, state='disable', textvariable=self.l4)
+        self.label_5.grid(column=0, row=15)
         entry_5 = ttk.Label(self, textvariable=self.e4)
         entry_5.grid(column=1, row=15)
 
-        label_6 = ttk.Label(self, textvariable=self.l5)
-        label_6.grid(column=0, row=16)
+        self.label_6 = ttk.Entry(self, width=6, state='disable', textvariable=self.l5)
+        self.label_6.grid(column=0, row=16)
         entry_6 = ttk.Label(self, textvariable=self.e5)
         entry_6.grid(column=1, row=16)
 
-        label_7 = ttk.Label(self, textvariable=self.l6)
-        label_7.grid(column=0, row=17)
+        self.label_7 = ttk.Entry(self, width=6, state='disable', textvariable=self.l6)
+        self.label_7.grid(column=0, row=17)
         entry_7 = ttk.Label(self, textvariable=self.e6)
         entry_7.grid(column=1, row=17)
 
-        label_8 = ttk.Label(self, textvariable=self.l7)
-        label_8.grid(column=0, row=18)
+        self.label_8 = ttk.Entry(self, width=6, state='disable', textvariable=self.l7)
+        self.label_8.grid(column=0, row=18)
         entry_8 = ttk.Label(self, textvariable=self.e7)
         entry_8.grid(column=1, row=18)
 
-        label_9 = ttk.Label(self, textvariable=self.l8)
-        label_9.grid(column=0, row=19)
+        self.label_9 = ttk.Entry(self, width=6, state='disable', textvariable=self.l8)
+        self.label_9.grid(column=0, row=19)
         entry_9 = ttk.Label(self, textvariable=self.e8)
         entry_9.grid(column=1, row=19)
 
-        label_10 = ttk.Label(self,  textvariable=self.l9)
-        label_10.grid(column=0, row=20)
+        self.label_10 = ttk.Entry(self, width=6, state='disable',  textvariable=self.l9)
+        self.label_10.grid(column=0, row=20)
         entry_10 = ttk.Label(self, textvariable=self.e9)
         entry_10.grid(column=1, row=20)
 
-        label_11 = ttk.Label(self,  textvariable=self.l10)
-        label_11.grid(column=0, row=21)
+        self.label_11 = ttk.Entry(self, width=6, state='disable',  textvariable=self.l10)
+        self.label_11.grid(column=0, row=21)
         entry_11 = ttk.Label(self, textvariable=self.e10)
         entry_11.grid(column=1, row=21)
 
-        label_12 = ttk.Label(self,  textvariable=self.l11)
-        label_12.grid(column=0, row=22)
+        self.label_12 = ttk.Entry(self, width=6, state='disable',  textvariable=self.l11)
+        self.label_12.grid(column=0, row=22)
         entry_12 = ttk.Label(self, textvariable=self.e11)
         entry_12.grid(column=1, row=22)
+
+        self.error_label = ttk.Label(self, width=22, textvariable=self.error_text)
+        self.error_label.grid(column=5, row=3, rowspan=2)
+        self.error_label = ttk.Label(self, width=22, textvariable=self.error_text1)
+        self.error_label.grid(column=5, row=5, rowspan=2)
 
         file_name_string = self.filename.get()
         image = Image.open(file_name_string).resize((420, 600))
@@ -210,6 +221,7 @@ class MainFrame(ttk.Frame):
         image_label = ttk.Label(self, image=photo, textvariable=self.filename, padding=5, compound="top")
         image_label.photo = photo
         image_label.grid(column=2, row=2, columnspan=3, rowspan=21)
+        self.button_edit.configure(state="normal")
 
     def load_correct_answers(self):
 
@@ -233,13 +245,92 @@ class MainFrame(ttk.Frame):
 
     def save_grade(self):
         answers = []
-        ans = tuple(self.answer_indexes)
-        dict_reverse = {0: "A", 1: "B", 2: "C", 3: "D"}
+        labels_usr = [self.l0, self.l1, self.l2, self.l3, self.l4, self.l5, self.l6, self.l7, self.l8, self.l9,
+                      self.l10, self.l11]
         for i in range(12):
-            answers.append(dict_reverse[ans[i]])
+            answers.append(labels_usr[i].get())
         answers = " ".join(answers)
-
         database.save_to_database(self.student_id.get(), self.percentage.get(), answers, self.test_id_indexes.get())
+        self.button_edit.configure(state="disable")
+
+    def edit_results(self):
+        self.button_ok.configure(state="normal")
+        labels = [self.label_1, self.label_2, self.label_3, self.label_4, self.label_5, self.label_6, self.label_7,
+                  self.label_8, self.label_9, self.label_10, self.label_11, self.label_12, self.label_student_id_display]
+        for i in labels:
+            i.configure(state="normal")
+
+        buttons = [self.button_load, self.button_check, self.button_edit, self.button_save, self.button_close]
+        for i in buttons:
+            i.configure(state="disable")
+
+    def commit_edit_changes(self):
+
+        id_checked_output = self.check_if_enter_correct_student_id()
+
+        correct_inputs, percentage = self.check_if_enter_correct_user_answer()
+        if correct_inputs & (id_checked_output == "Success!"):
+
+            self.button_ok.configure(state="disable")
+            labels = [self.label_1, self.label_2, self.label_3, self.label_4, self.label_5, self.label_6, self.label_7,
+                      self.label_8, self.label_9, self.label_10, self.label_11, self.label_12,
+                      self.label_student_id_display]
+            for i in labels:
+                i.configure(state="disable")
+
+            buttons = [self.button_load, self.button_check, self.button_edit, self.button_save, self.button_close]
+            for i in buttons:
+                i.configure(state="normal")
+
+            self.percentage.set(percentage)
+
+            self.error_text.set("Success!\nEdit User Answers")
+            self.error_text1.set("Success!\nEdit StudentID")
+
+        else:
+            if correct_inputs != 12:
+                self.error_text.set("Error!\nEnter A, B, C, or D")
+            else:
+                self.error_text.set("Success!\nEdit User Answers")
+            if id_checked_output != "Success!":
+                self.error_text1.set(id_checked_output)
+            else:
+                self.error_text1.set("Success!\nEdit StudentID")
+
+    def check_if_enter_correct_user_answer(self):
+        sum_cor = 0
+        user = [self.l0, self.l1, self.l2, self.l3, self.l4, self.l5,
+                self.l6, self.l7, self.l8, self.l9, self.l10, self.l11]
+        key = [self.e0, self.e1, self.e2, self.e3, self.e4, self.e5,
+               self.e6, self.e7, self.e8, self.e9, self.e10, self.e11]
+
+        correct_inputs = 0
+        for i in range(12):
+            user[i].set(user[i].get().capitalize())
+
+            if user[i].get() in "ABCD":
+                correct_inputs += 1
+        if correct_inputs == 12:
+            for i in range(12):
+                if user[i].get() == key[i].get():
+                    sum_cor += 1
+            percentage = str(round(sum_cor / 12 * 100, 2))
+            return 1, percentage
+        else:
+            return 0, self.percentage.get()
+
+    def check_if_enter_correct_student_id(self):
+        try:
+            student = int(self.student_id.get())
+        except:
+            return "Error!\nStudentID not a number!"
+
+        if len(str(student))<5:
+            return "Error!\nStudent ID too short!"
+        elif len(str(student))>5:
+            return "Error!\nStudentID too long!"
+        else:
+            return "Success!"
 
 
 def check(image_path):

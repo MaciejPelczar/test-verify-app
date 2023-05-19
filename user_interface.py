@@ -201,6 +201,7 @@ class MainFrame(ttk.Frame):
         image_label = ttk.Label(self, image=photo, textvariable=self.filename, padding=5, compound="top")
         image_label.photo = photo
         image_label.grid(column=2, row=2, columnspan=3, rowspan=21)
+        self.button_edit.configure(state="disable")
 
     def check_image(self, *args):
         percentage, student_id, self.answer_indexes, test_id_indexes, img = check(self.filename.get())

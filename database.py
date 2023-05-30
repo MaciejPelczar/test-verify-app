@@ -18,3 +18,8 @@ def get_correct_answers(test_id):
         corr_ans = con.execute(f"SELECT ANSWERS FROM CORRECT_ANSWERS WHERE TEST_ID = {test_id}")
         corr_ans = list(corr_ans)
     return corr_ans[0][0]
+
+
+def get_all():
+    with con:
+        return con.execute(f"SELECT * FROM STUDENTS_RESULT")

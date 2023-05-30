@@ -89,7 +89,7 @@ class MainFrame(ttk.Frame):
 
         label_student_id = ttk.Label(self, text="Student ID")
         label_student_id.grid(column=0, row=5, columnspan=2)
-        self.label_student_id_display = ttk.Entry(self,state='disable', width=8, textvariable=self.student_id)
+        self.label_student_id_display = ttk.Entry(self, state='disable', width=8, textvariable=self.student_id)
         self.label_student_id_display.grid(column=0, row=6, columnspan=2)
 
         ttk.Separator(
@@ -164,17 +164,17 @@ class MainFrame(ttk.Frame):
         entry_9 = ttk.Label(self, textvariable=self.e8)
         entry_9.grid(column=1, row=19)
 
-        self.label_10 = ttk.Entry(self, width=6, state='disable',  textvariable=self.l9)
+        self.label_10 = ttk.Entry(self, width=6, state='disable', textvariable=self.l9)
         self.label_10.grid(column=0, row=20)
         entry_10 = ttk.Label(self, textvariable=self.e9)
         entry_10.grid(column=1, row=20)
 
-        self.label_11 = ttk.Entry(self, width=6, state='disable',  textvariable=self.l10)
+        self.label_11 = ttk.Entry(self, width=6, state='disable', textvariable=self.l10)
         self.label_11.grid(column=0, row=21)
         entry_11 = ttk.Label(self, textvariable=self.e10)
         entry_11.grid(column=1, row=21)
 
-        self.label_12 = ttk.Entry(self, width=6, state='disable',  textvariable=self.l11)
+        self.label_12 = ttk.Entry(self, width=6, state='disable', textvariable=self.l11)
         self.label_12.grid(column=0, row=22)
         entry_12 = ttk.Label(self, textvariable=self.e11)
         entry_12.grid(column=1, row=22)
@@ -257,7 +257,8 @@ class MainFrame(ttk.Frame):
     def edit_results(self):
         self.button_ok.configure(state="normal")
         labels = [self.label_1, self.label_2, self.label_3, self.label_4, self.label_5, self.label_6, self.label_7,
-                  self.label_8, self.label_9, self.label_10, self.label_11, self.label_12, self.label_student_id_display]
+                  self.label_8, self.label_9, self.label_10, self.label_11, self.label_12,
+                  self.label_student_id_display]
         for i in labels:
             i.configure(state="normal")
 
@@ -289,7 +290,7 @@ class MainFrame(ttk.Frame):
             self.error_text1.set("Success!\nEdit StudentID")
 
         else:
-            if correct_inputs != 12:
+            if not correct_inputs:
                 self.error_text.set("Error!\nEnter A, B, C, or D")
             else:
                 self.error_text.set("Success!\nEdit User Answers")
@@ -326,25 +327,109 @@ class MainFrame(ttk.Frame):
         except:
             return "Error!\nStudentID not a number!"
 
-        if len(str(student))<5:
+        if len(str(student)) < 5:
             return "Error!\nStudent ID too short!"
-        elif len(str(student))>5:
+        elif len(str(student)) > 5:
             return "Error!\nStudentID too long!"
         else:
             return "Success!"
 
 
 def check(image_path):
-
     image = check_image.CheckImage(image_path)
     image.check_image()
 
     return image.percentage, image.student_indexes, image.answer_indexes, image.test_id_indexes_int, image.img
 
 
-def start_user_interface():
-    root = MainWindow()
+def show_last_results():
+    win = root
+    new = tk.Toplevel(win)
+    new.geometry("520x600")
+    new.title("Results")
+    frame = ttk.Frame(new)
+    frame.pack()
 
-    root.columnconfigure(0, weight=1)
+    # scrollbar
+    scrollX = ttk.Scrollbar(frame, orient='horizontal')
+    scrollX.pack(side=tk.BOTTOM, fill=tk.X)
 
-    root.mainloop()
+    scrollY = ttk.Scrollbar(frame, orient='vertical')
+    scrollY.pack(side=tk.RIGHT, fill=tk.Y)
+
+    results = ttk.Treeview(frame, yscrollcommand=scrollY.set, xscrollcommand=scrollX.set, height=550)
+
+    results.pack()
+
+    scrollY.config(command=results.yview)
+    scrollX.config(command=results.xview)
+
+    # define our column
+
+    results['columns'] = ('student_id', 'percent', 'answers', 'test_id', 'date_time')
+
+    # format our column
+    results.column("#0", width=0, stretch=tk.NO)
+    results.column("student_id", anchor=tk.CENTER, width=70)
+    results.column("percent", anchor=tk.CENTER, width=50)
+    results.column("answers", anchor=tk.CENTER, width=160)
+    results.column("test_id", anchor=tk.CENTER, width=50)
+    results.column("date_time", anchor=tk.CENTER, width=120)
+
+    # Create Headings
+    results.heading("#0", text="", anchor=tk.CENTER)
+    results.heading("student_id", text="Student Id", anchor=tk.CENTER)
+    results.heading("percent", text="Score %", anchor=tk.CENTER)
+    results.heading("answers", text="Answers", anchor=tk.CENTER)
+    results.heading("test_id", text="Test Id", anchor=tk.CENTER)
+    results.heading("date_time", text="Date & Time", anchor=tk.CENTER)
+
+    all_info = (database.get_all())
+
+    for i in reversed(list(all_info)):
+        results.insert(parent="", index='end', iid=i, text='', values=(i[1], i[2], i[3], i[4], i[5]))
+
+    win.mainloop()
+    win.quit()
+
+
+def show_credentials():
+    win = root
+    new = tk.Toplevel(win)
+    new.geometry("550x120")
+    new.title("About application")
+    frame = ttk.Frame(new)
+    frame.pack()
+
+    label = ttk.Label(new, text="Answer card checker app.", font=("Segoe UI", 12))
+    label_text = ttk.Label(new, text="The application allows you to load a photo of the answer card, "
+                                     "using the openCV library, \nthe fields Answers, Student ID and Test ID are read. "
+                                     "Answers are verified on the basis of \na key in the database with the "
+                                     "appropriate Test ID. The application also allows you to \nsave the obtained "
+                                     "results to the database. The GUI was created using the tkinter library.")
+    label.pack()
+    label_text.pack()
+    win.mainloop()
+    win.quit()
+
+
+root = MainWindow()
+
+root.columnconfigure(0, weight=1)
+
+menubar = tk.Menu(root)
+filemenu = tk.Menu(menubar, tearoff=0)
+filemenu.add_command(label="Check results", command=show_last_results)
+filemenu.add_separator()
+filemenu.add_command(label="Exit", command=root.quit)
+
+helpmenu = tk.Menu(menubar, tearoff=0)
+helpmenu.add_command(label="About", command=show_credentials)
+
+menubar.add_cascade(label="Menu", menu=filemenu)
+menubar.add_cascade(label="Help", menu=helpmenu)
+
+root.config(menu=menubar)
+
+root.mainloop()
+
